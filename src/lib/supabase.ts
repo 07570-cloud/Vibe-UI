@@ -142,13 +142,14 @@ export async function likeVibe(id: string): Promise<number> {
 
   if (isSupabaseConfigured && supabase) {
     try {
-      await supabase.rpc('increment_likes', { row_id: id }).catch(async () => {
+      const { error } = await supabase.rpc('increment_likes', { row_id: id });
+      if (error) {
         // Fallback standard update if rpc doesn't exist
         await supabase
           .from('vibes')
           .update({ likes_count: newLikes })
           .eq('id', id);
-      });
+      }
     } catch {
       // Ignored for graceful degradation
     }
